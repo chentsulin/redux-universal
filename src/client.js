@@ -5,7 +5,7 @@ import thunkMiddleware from "redux-thunk";
 import React from "react";
 import {Provider} from "react-redux";
 import {Router} from "react-router";
-import {history} from "react-router/lib/BrowserHistory";
+import {createHistory} from "history";
 
 import {ActionTypes} from "./constants";
 import * as reducers from "./reducers";
@@ -29,7 +29,7 @@ const JAVASCRIPT_IS_ENABLED = true; // Change this to false to see how it works?
 if (JAVASCRIPT_IS_ENABLED) {
   React.render((
     <Provider store={store}>
-      {() => <Router history={history} children={childrenRoutes}/>}
+      {() => <Router history={createHistory()} children={childrenRoutes}/>}
     </Provider>
   ), document.getElementById("root"));
 }

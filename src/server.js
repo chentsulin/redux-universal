@@ -3,15 +3,16 @@ import { createStore, combineReducers, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import React from "react";
 import {Provider} from "react-redux";
-import Router from "react-router";
-import Location from "react-router/lib/Location";
+import { RoutingContext, match } from "react-router";
+import {createLocation} from "history";
+import qs from "qs";
 
 import {ActionTypes} from "./constants";
 import * as reducers from "./reducers";
 import loggerMiddleware from "./middleware/logger";
 import HtmlDocument from "./components/HtmlDocument";
 
-const runRouter = thenify(Router.run);
+const matchRoute = thenify(match);
 
 const extraMiddlewares = [
 ];
@@ -40,23 +41,27 @@ export function createHtmlResponse ({
   const store = finalCreateStore(reducer, initialState);
 
   const routes = require("./routes")(store);
-  const location = new Location(request.path, request.query);
+  const location = createLocation(
+    request.query ? request.path : `${request.path}?${qs.stringify(request.query)}`
+  );
 
-  return runRouter(routes, location).then(([routerState, transition]) => {
-    if (transition.isCancelled) {
-      if (transition.redirectInfo) {
-        return {
-          status: 302,
-          pathname: transition.redirectInfo.pathname,
-        };
-      } else {
-        return Promise.reject(transition.abortReason);
-      }
+  return matchRoute({ routes, location }).then(([ redirectLocation, renderProps ]) => {
+    if (redirectLocation) {
+      return {
+        status: 302,
+        pathname: redirectLocation.pathname + redirectLocation.search,
+      };
+    }
+
+    if (null == renderProps) {
+      return {
+        status: 404,
+      };
     }
 
     const markup = React.renderToString(
       <Provider store={store}>
-        {() => <Router {...routerState}/>}
+        {() => <RoutingContext {...renderProps} />}
       </Provider>
     );
 
@@ -74,5 +79,8 @@ export function createHtmlResponse ({
       status: state.AppReducer.status,
       body: `<!DOCTYPE html>${ html }`,
     };
-  });
+  }, err => ({
+    status: 500,
+    body: `<!DOCTYPE html>${ err.message }`,
+  }));
 }

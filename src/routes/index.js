@@ -35,9 +35,9 @@ export default function routes(store) {
       },
       {
         path: "*",
-        onEnter(state, transition) {
+        onEnter(state, replaceState) {
           // You may choose to render a 404 PageView here.
-          transition.to("/");
+          replaceState("/");
         },
       },
     ],

@@ -1,5 +1,6 @@
 import {OrderedSet} from "immutable";
 import React, { PropTypes } from "react";
+import { PropTypes as RouterPropTypes } from "react-router";
 
 import {connect, createEnterTransitionHook, propSliceWillChange} from "../../decorators";
 import * as PostActions from "../../actions/PostActions";
@@ -51,7 +52,7 @@ export default class SearchPostPageView extends React.Component {
 
   static contextTypes = {
     store: PropTypes.object.isRequired,
-    router: PropTypes.object.isRequired,
+    history: RouterPropTypes.history.isRequired,
   }
 
   static propTypes = {
@@ -120,7 +121,7 @@ export default class SearchPostPageView extends React.Component {
     // Blur the input field when the form is submittted
     this.getInputField().blur();
 
-    this.context.router.transitionTo("/search", {
+    this.context.history.pushState(null, "/search", {
       q: term,
     });
   }

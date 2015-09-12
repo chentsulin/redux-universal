@@ -42,7 +42,6 @@ export default class ForumPostPageView extends React.Component {
 
   static contextTypes = {
     store: PropTypes.object.isRequired,
-    router: PropTypes.object.isRequired,
   }
 
   static propTypes = {
